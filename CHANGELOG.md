@@ -1,5 +1,39 @@
 # Changelog
 
+## [0.1.0-rc2] - 2026-10-11
+
+### Highlights
+
+This is the second release candidate for 0.1.0. The extension is the
+same as in 0.1.0-rc1. It is still alpha quality and meant for testing,
+not production.
+
+0.1.0-rc1 was published without a source tarball and checksum. This
+candidate is the first to ship them. If you already run 0.1.0-rc1,
+there is no reason to upgrade.
+
+### Breaking changes & upgrade notes
+
+None.
+
+There is no upgrade path from 0.1.0-rc1. `ALTER EXTENSION ... UPDATE`
+has no script to run. To switch, drop and recreate the extension and
+its indexes.
+
+### Known issues
+
+The known issues listed for 0.1.0-rc1 below all still apply.
+
+### Changes
+
+#### Bug fixes
+
+- *ci*: Release assets are attached before the release is published.
+  An immutable release refused them afterwards, which left 0.1.0-rc1
+  without a tarball ([d4d3167](https://github.com/timescale/pg_vectorsearch/commit/d4d3167e4b214326869b6cac94af6ceb56a99ace))
+
+[Full changelog](https://github.com/timescale/pg_vectorsearch/compare/v0.1.0-rc1...v0.1.0-rc2)
+
 ## [0.1.0-rc1] - 2026-10-08
 
 ### Highlights
