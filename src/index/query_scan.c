@@ -557,6 +557,11 @@ prism_query_route(
  * "unbounded" through the division below. */
 #define PRISM_RERANK_COST_SCALE_MIN 0.01
 
+/* Working set to cache ratio at which cost scaling starts. A moderately
+ * oversized working set is still mostly cache hits, so a smaller pool
+ * costs recall without saving time. */
+#define PRISM_RERANK_SCALE_MIN_RATIO 3.0
+
 static int32_t g_rerank_pool	   = 0;
 static double  g_rerank_cost_scale = 1.0;
 
@@ -621,6 +626,17 @@ prism_query_set_rerank_cost_scale(double scale)
 	g_rerank_cost_scale = scale < PRISM_RERANK_COST_SCALE_MIN
 								? PRISM_RERANK_COST_SCALE_MIN
 								: scale;
+}
+
+double
+prism_query_auto_cost_scale(double working_set_bytes, double cache_bytes)
+{
+	if (cache_bytes <= 0)
+		return 1.0;
+
+	double ratio = working_set_bytes / cache_bytes;
+
+	return ratio >= PRISM_RERANK_SCALE_MIN_RATIO ? ratio : 1.0;
 }
 
 uint32_t

@@ -496,11 +496,9 @@ ensure_query_state(PrismScanState *ss, uint32_t k)
 }
 
 /*
- * Auto-detect the rerank_pool_cost_scale (prism.rerank_pool_cost_scale = 0):
- * the ratio of this scan's table+index size to effective_cache_size,
- * floored at 1.0 (the automatic rerank_pool formula's original fit,
- * unmodified, whenever the working set fits in cache -- see
- * PRISM_RERANK_POOL_AUTO_COEFF in query_scan.c).
+ * Auto-detect the rerank_pool_cost_scale (prism.rerank_pool_cost_scale = 0)
+ * from this scan's table+index size and effective_cache_size; see
+ * prism_query_auto_cost_scale for the rule.
  *
  * effective_cache_size is the right cache-size signal here rather than
  * shared_buffers alone: it is PostgreSQL's own estimate of total
@@ -519,14 +517,10 @@ prism_auto_rerank_cost_scale(Relation heap, Relation index)
 {
 	BlockNumber heap_blocks	 = RelationGetNumberOfBlocks(heap);
 	BlockNumber index_blocks = RelationGetNumberOfBlocks(index);
-	double		total_bytes	 = (double)(heap_blocks + index_blocks) * BLCKSZ;
-	double		cache_bytes	 = (double)effective_cache_size * BLCKSZ;
 
-	if (cache_bytes <= 0)
-		return 1.0;
-
-	double scale = total_bytes / cache_bytes;
-	return scale > 1.0 ? scale : 1.0;
+	return prism_query_auto_cost_scale(
+			(double)(heap_blocks + index_blocks) * BLCKSZ,
+			(double)effective_cache_size * BLCKSZ);
 }
 
 /* ----------------------------------------------------------------

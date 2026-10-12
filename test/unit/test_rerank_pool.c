@@ -149,3 +149,37 @@ TEST(cost_scale_has_a_minimum)
 
 	ASSERT_TRUE(pool < 10000u, "clamped scale keeps the pool bounded");
 }
+
+TEST(auto_cost_scale_waits_for_a_working_set_far_past_cache)
+{
+	double gb = 1024.0 * 1024.0 * 1024.0;
+
+	/* Fits in cache, or only moderately past it: still mostly cache
+	 * hits, so the pool is left alone. 405 GB against a 192 GB cache
+	 * (cohere-100m) is a ratio of 2.1. */
+	ASSERT_TRUE(prism_query_auto_cost_scale(1 * gb, 4 * gb) == 1.0, "fits");
+	ASSERT_TRUE(
+			prism_query_auto_cost_scale(405 * gb, 192 * gb) == 1.0,
+			"2.1x the cache is unscaled");
+	ASSERT_TRUE(
+			prism_query_auto_cost_scale(11 * gb, 4 * gb) == 1.0,
+			"just under 3x is unscaled");
+
+	/* From 3x up the scale is the ratio itself; 4.4x is the 1.8 GB / 1-vCPU
+	 * host against its cohere-1m table and index. */
+	ASSERT_TRUE(
+			prism_query_auto_cost_scale(12 * gb, 4 * gb) == 3.0, "3x scales");
+	ASSERT_TRUE(
+			prism_query_auto_cost_scale(44 * gb, 10 * gb) == 4.4,
+			"scale is the ratio");
+}
+
+TEST(auto_cost_scale_without_a_cache_size_is_one)
+{
+	ASSERT_TRUE(
+			prism_query_auto_cost_scale(100.0, 0.0) == 1.0,
+			"zero cache is unscaled");
+	ASSERT_TRUE(
+			prism_query_auto_cost_scale(100.0, -1.0) == 1.0,
+			"negative cache is unscaled");
+}

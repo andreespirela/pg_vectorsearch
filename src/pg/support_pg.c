@@ -347,8 +347,9 @@ _PG_init(void)
 			"table and index do not fit in cache, each rerank candidate is "
 			"a disk read instead, and this scale divides the pool to "
 			"account for that. 0 (the default) computes the scale per scan "
-			"as (table + index size) / effective_cache_size, floored at "
-			"1.0, so nothing changes when the working set fits in cache. "
+			"as (table + index size) / effective_cache_size once that "
+			"ratio reaches 3, and uses 1.0 below it, so nothing changes "
+			"unless the working set is far past the cache. "
 			"Set a positive value to override; 1.0 always gives the "
 			"unscaled pool. The pool never drops below the built-in "
 			"recall floor.",

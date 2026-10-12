@@ -200,6 +200,15 @@ uint32_t prism_query_beam_width(
 void prism_query_set_rerank_cost_scale(double scale);
 
 /*
+ * Cost scale for a scan, from the working set (table + index) and the
+ * cache size in bytes. 1.0 until the working set is at least three times
+ * the cache; from there the ratio itself. 1.0 also when the cache size is
+ * unknown.
+ */
+double prism_query_auto_cost_scale(
+		double working_set_bytes, double cache_bytes);
+
+/*
  * Probe-order refinement (prism.probe_expand).
  *
  * Routes ceil(nprobe * expand) leaf candidates through the centroid
