@@ -105,7 +105,7 @@ CREATE TABLE items (
 -- 500 rows is enough for the planner to use the index.
 INSERT INTO items (embedding)
 SELECT ARRAY[i::real, (i % 7)::real, (i % 5)::real]::vec32
-FROM generate_series(1, 500) i;
+FROM generate_series(1, 1000) i;
 
 -- Or vec32_ip_ops / vec32_cosine_ops.
 CREATE INDEX ON items USING prism (embedding vec32_l2_ops);
