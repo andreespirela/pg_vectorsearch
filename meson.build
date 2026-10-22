@@ -279,6 +279,9 @@ hdf5_dep = dependency('hdf5', language: 'c', required: hdf5_opt)
 use_hdf5 = hdf5_dep.found()
 
 if use_hdf5
+  # -isystem rather than -I, so clang-tidy does not treat the HDF5
+  # headers as project code and report findings in them.
+  hdf5_dep = hdf5_dep.as_system('system')
   config_data.set('VS_HAVE_HDF5', 1)
   message('HDF5 integration enabled')
 else
@@ -500,6 +503,7 @@ vs_cli_sources = files(
   'src/cli/kv.c',
   'src/cli/kv_json.c',
   'src/cli/kv_text.c',
+  'src/cli/bench.c',
   'src/cli/bench_distance.c',
   'src/cli/bench_idset.c',
   'src/cli/bench_quantize.c',
@@ -508,6 +512,7 @@ vs_cli_sources = files(
   'src/cli/bench_rabitq_kernel.c',
   'src/cli/bench_page_score.c',
   'src/cli/bench_fastscan_kernel.c',
+  'src/cli/bench_topk.c',
   'src/cli/distance_pgvector.c',
   'src/cli/kmeans_pgvector.c',
 )
