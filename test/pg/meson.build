@@ -119,6 +119,7 @@ else
           'mutations_concurrent',
           'mutations_wide',
           'build_serialize',
+          'maintenance_privilege',
         ],
         depends: [pgvs_ext_so],
         timeout: 120,
